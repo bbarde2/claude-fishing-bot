@@ -1,0 +1,11 @@
+{
+    "name": "claudebot",
+    "version": "1.0.0",
+    "description": "Claude Chatbot Azure Function",
+    "scripts": {
+        "start": "func start"
+    },
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.18.0"
+    }
+}
