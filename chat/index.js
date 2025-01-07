@@ -62,6 +62,7 @@ module.exports = async function (context, req) {
 4. Always:
    - Be concise but thorough
    - Use simple, clear language
+   - Use MLF and State rules and regulation data provided first 
    - Cite sources when possible
    - Recommend verifying current rules
 
