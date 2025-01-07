@@ -2,8 +2,6 @@ const { Anthropic } = require('@anthropic-ai/sdk');
 const { rulesUrl, rulesText } = require('../rules/bfl-rules.js');
 
 module.exports = async function (context, req) {
-    context.log('Function starting...');
-    
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
         context.res = {
@@ -19,23 +17,20 @@ module.exports = async function (context, req) {
     }
 
     try {
-        if (!process.env.ANTHROPIC_API_KEY) {
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
             throw new Error('API key not configured');
         }
 
-        const anthropic = new Anthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY,
-        });
+        const anthropic = new Anthropic({ apiKey });
 
         const { message } = req.body;
-        context.log('Received message:', message);
-        
+
         if (!message) {
             context.res = {
                 status: 400,
                 headers: {
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST, OPTIONS",
                     "Content-Type": "application/json"
                 },
                 body: { error: "No message provided" }
@@ -43,7 +38,7 @@ module.exports = async function (context, req) {
             return;
         }
 
-        const systemPrompt = `You are a comprehensive fishing regulations expert, specializing in both MLF tournament rules and state-specific fishing regulations. Your knowledge base includes:
+        const systemPrompt = `You are a comprehensive fishing regulations expert specializing in MLF tournament and state-specific fishing regulations. Your knowledge base includes:
 
 1. MLF Bass Fishing League (BFL) Rules
 - Tournament regulations
@@ -54,7 +49,7 @@ module.exports = async function (context, req) {
 
 2. State Fishing Regulations (50 states + DC)
 - General fishing rules
-- Species-specific regulations
+- Species-specific regulations with a focus on bass
 - License requirements
 - Special venue restrictions
 - Seasonal limitations
@@ -63,7 +58,7 @@ RESPONSE GUIDELINES:
 
 For Tournament-Specific Questions:
 1. Start with the relevant MLF BFL rule
-2. Add applicable state regulation if location is mentioned
+2. Add applicable state regulation if location is known
 3. Explain any conflicts between rules
 4. Cite specific sources and page numbers
 
@@ -106,44 +101,29 @@ Your responses should be:
 3. Properly sourced and cited
 4. Relevant to the specific question
 5. Complete but concise`;
-        
-        // Updated API call format
-        const response = await anthropic.messages.create({
-            model: "claude-3-haiku-20240307",
-            max_tokens: 1024,
-            system: systemPrompt,
-            messages: [
-                { 
-                    role: 'user',
-                    content: message 
-                }
-            ]
+
+        const response = await anthropic.complete({
+            model: "claude-3",
+            max_tokens_to_sample: 1024,
+            prompt: `${systemPrompt}\nUser: ${message}\nAI:`
         });
 
         context.res = {
             status: 200,
             headers: {
-                "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
+                "Content-Type": "application/json"
             },
-            body: { response: response.content[0].text }
+            body: { response: response.completion }
         };
     } catch (error) {
-        context.log.error('Error details:', error);
-        
         context.res = {
             status: 500,
             headers: {
-                "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
+                "Content-Type": "application/json"
             },
-            body: { 
-                error: "Internal server error",
-                details: error.message,
-                stack: error.stack
-            }
+            body: { error: "Internal server error" }
         };
     }
 };
