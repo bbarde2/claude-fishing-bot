@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+node_modules
+package-lock.json
+
+# Environment files
+.env
+local.settings.json
+
+# Runtime files
+*.log
+
+# IDE and Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Azure Functions
+local.settings.json
+bin/
+obj/
