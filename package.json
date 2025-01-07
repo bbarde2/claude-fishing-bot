@@ -2,14 +2,10 @@
     "name": "claudebot",
     "version": "1.0.0",
     "description": "MLF Rules and State Regulations Chatbot",
-    "main": "index.js",
     "scripts": {
         "start": "func start"
     },
     "dependencies": {
-        "@anthropic-ai/sdk": "^0.18.0",
-        "pdfjs-dist": "^4.0.379",
-        "node-fetch": "^2.7.0",
-        "canvas": "^2.11.2"
+        "@anthropic-ai/sdk": "^0.18.0"
     }
 }
